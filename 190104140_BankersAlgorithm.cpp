@@ -86,10 +86,24 @@ int main()
         }
     }
 
-    cout << "\nInput Available Matrix: ";
+    // cout << "\nInput Available Matrix: ";
+    // for (int i = 0; i < R; i++)
+    // {
+    //     cin >> available[i];
+    // }
+
+    cout << endl;
     for (int i = 0; i < R; i++)
     {
-        cin >> available[i];
+        int totalResource;
+        cout << "Enter total value of resource " << i+1 << ": ";
+        cin >> totalResource;
+
+        for (int j = 0 ; j < P; j++)
+        {
+            totalResource-= allocation[j][i];
+        }
+        available[i] = totalResource;
     }
 
     calcNeed(P, R);
@@ -112,9 +126,11 @@ int main()
     return 0;
 }
 
+
+
 /*
 
-sample input #1
+sample input #1 for given total resource
 
 4 3
 3 2 2
@@ -125,9 +141,9 @@ sample input #1
 2 1 1
 4 2 2
 0 0 2
-1 1 2
+9 3 6
 
-sample input #2
+sample input #2 for given available resource
 
 5 3
 
