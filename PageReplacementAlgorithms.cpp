@@ -8,54 +8,70 @@ vector <int> refString;
 
 void FIFO() // not working
 {
-    int sim[3][22];
+    int sim[frames][pages];
+    memset(sim, -1, sizeof(sim));
+
     int fault= 0;
-    queue <int> inMem;
-    
-    for (int j = 0; j < n; j++)
+    deque <int> inMem;
+
+    for (int j = 0; j < n; j++) 
     {
         bool found = false;
-        int i, index = -1;
-        for (i = 0; i < inMem.size(); i++)
+        for (int i = 0; i < inMem.size(); i++)
         {
-            if (sim[i][j] == refString[j])
+            if (sim[i][j-1] == refString[j])
             {
                 found = true;
-                index = i;
                 break;
             }
         }
 
-        if(i == frames)
+        if(!found && inMem.size() == frames)
         {
             fault++;
             for(int k = 0; k < inMem.size(); k++)
-            {
+            { 
+                sim[k][j] = sim[k][j-1];
+                cout << sim[k][j] << *inMem.begin() <<endl;
+                
                 if (sim[k][j] == inMem.front())
                 {
                     sim[k][j] = refString[j];
-                    inMem.pop();
-                    inMem.push(refString[j]);
-                    break;
+                    inMem.pop_front();
+                    inMem.push_back(refString[j]);
                 }
             }
+            cout << endl;
         }
-        else if (i < frames && !found )
+        else if (!found && inMem.size() < frames)
         {
             fault++;
-            inMem.push(refString[j]);
-            sim[index][j] = refString[j];
+            for(int k = 0; k < inMem.size(); k++)
+            { 
+                sim[k][j] = sim[k][j-1];
+            }
+            sim[inMem.size()][j] = refString[j];
+            inMem.push_back(refString[j]);
+            
         }
         
     }
-
+    cout << "in here 7";
     cout << "Number of page fault using FIFO Page replacement Algorithm: " << fault << endl;;
     cout << "Page Fault Rate: " << fault*100/n << "%" << endl;;
     for(auto i = 0; i < frames; i++)
     {
         for(auto j = 0; i < n; j++)
         {
-            cout << sim[i][j] << " ";
+            if (sim [i][j] == -1)
+            {
+                cout << "  ";
+            }
+            else 
+            {
+                cout << sim[i][j] << " ";
+            }
+            
         }
         cout << endl;
     }
@@ -77,6 +93,7 @@ int main()
         cin >> in;
         refString.push_back(in);
     }
+    cout << endl;
     
     cout << "Number of Memory Page Frame: ";
     cin >> frames;
