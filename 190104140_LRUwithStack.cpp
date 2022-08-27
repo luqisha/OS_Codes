@@ -1,47 +1,78 @@
+// created by 190104140_Ashiq at 2022-08-27 04:09.
+// github.com/luqisha
+
 #include <bits/stdc++.h>
 
 using namespace std;
+
 vector <int> refString;
 int frames, pages;
+int simOutput[50][100];
 
-void LRU() // idk why not working :"(
+stack <int> inMem, temp;
+
+
+void generateSimulation(int colIndex)
 {
-    stack <int> inMem, temp;
+    int i = 0;
+    while(!inMem.empty()) //iterate through inMem stack using temp stack
+    {
+        
+        simOutput[i++][colIndex] = inMem.top();
+        temp.push(inMem.top());
+        inMem.pop();
+    }
+
+    while(!temp.empty()) //restore inMem stack
+    {
+        inMem.push(temp.top());
+        temp.pop();
+    }
+    
+}
+
+
+void LRU() 
+{
     int n = refString.size();
     int fault = 0, hit = 0;
 
-    for(auto it = refString.begin(); it!=refString.end(); it++)
+    for(auto i = 0; i < refString.size(); i++)
     {
-
-        if (inMem.empty())
+        if (inMem.empty()) //if memory frames are empty then just push into inMem stack
         {
-            inMem.push(*it);
+            inMem.push(refString[i]);
             fault++;
         }
-        else if (inMem.top() == *it)
+        else if (inMem.top() == refString[i]) //if top frame contains requested page
         {
             hit++;
             continue;
         }
         else
         {
-            while (inMem.top() != *it || !inMem.empty())
+            while (!inMem.empty() && (inMem.top() != refString[i] )) //searching inMem stack for requested page
             {
                 temp.push(inMem.top());
                 inMem.pop();
             }
 
-            if (inMem.empty())
+            if (inMem.empty()) //page not found in inMem stack
             {
+                if(temp.size() >= frames) //keeping the size of the stack fixed to num of frames
+                {
+                    temp.pop();
+                }
+                
                 while(!temp.empty())
                 {
                     inMem.push(temp.top());
                     temp.pop();
                 }
-                inMem.push(*it);
+                inMem.push(refString[i]);
                 fault++;
             }
-            else
+            else //page found in inMem stack
             {
                 int x = inMem.top();
                 inMem.pop();
@@ -56,20 +87,26 @@ void LRU() // idk why not working :"(
             
         }
 
+        generateSimulation(i);
+
     }
 
-    cout << "Page fault: " << fault << endl;
-    cout << "Page hit: " << hit << endl;
-    cout << "Page fault rate : " << (fault / n) * 100 << endl;
+    cout << endl;
+    cout << "Page Fault: " << fault << endl;
+    cout << "Page Hit: " << hit << endl;
+    cout << "Page Fault Rate : " << ((float)fault / n) * 100 <<" %" << endl;
 
 }
 
 
 int main()
 {
+    memset(simOutput, -1, sizeof(simOutput));
+
     cout << "Number of Page Requests: ";
     cin >> pages; 
 
+    cout << "Reference String: ";
     for (int i = 0; i < pages; i++)
     {
         int input;
@@ -77,12 +114,30 @@ int main()
         refString.push_back(input);
     }    
 
-    cout << refString.size() << endl;
-    
     cout << "Number of Memory Page Frame: ";
     cin >> frames;
 
+
     LRU();
+
+    cout << endl << "Simulation Output ::" << endl;
+    for (int i = 0; i < frames; i++)
+    { 
+        for (int j = 0; j < pages; j++)
+        {
+            if (simOutput[i][j] == -1)
+            {
+                cout << "  ";
+            }
+            else
+            {
+                cout << simOutput[i][j] << " " ;
+            }
+        }
+        cout << endl;
+    }
+    cout << endl;
+    
 
     return 0;
 }
